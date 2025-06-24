@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // 🛑 ACTION: Make sure this import path matches your project structure.
-import '../../provider/OnboardingNotifier.dart';
+import '../../provider/onboarding_provider.dart';
 import '../homescreen.dart';
 
 class OnboardingScreen extends ConsumerWidget {
