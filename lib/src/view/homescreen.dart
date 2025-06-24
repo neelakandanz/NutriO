@@ -1,9 +1,11 @@
 // lib/src/view/homescreen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nutrio/src/provider/image_picker_provider.dart';
 import 'package:nutrio/src/provider/theme_provider.dart';
+import 'package:nutrio/src/view/water_intake/water_intake_screen.dart'; // Import the new screen
 import '../core/constants/app_constant.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -11,6 +13,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // ... (keep the existing build method logic)
     final theme = Theme.of(context);
 
     ref.listen<XFile?>(imagePickerProvider, (previous, next) {
@@ -90,7 +93,6 @@ class HomeScreen extends ConsumerWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // Replace the old DrawerHeader with this UserAccountsDrawerHeader
           UserAccountsDrawerHeader(
             accountName: Text(
               "Your Name", // Placeholder for user's name
@@ -113,15 +115,20 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surface, // Use surface color for a clean look
+              color: theme.colorScheme.surface,
             ),
           ),
           ListTile(
             leading: const Icon(Icons.water_drop_outlined),
             title: const Text('Log Water Intake'),
             onTap: () {
-              Navigator.of(context).pop(); // Close the drawer
-              _showWaterIntakeDialog(context);
+              Navigator.of(context).pop(); // Close the drawer first
+              // ** MODIFICATION HERE **
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const WaterIntakeScreen(),
+                ),
+              );
             },
           ),
           ListTile(
@@ -130,7 +137,7 @@ class HomeScreen extends ConsumerWidget {
             ),
             title: const Text('Toggle Theme'),
             onTap: () {
-              Navigator.of(context).pop(); // Close the drawer
+              Navigator.of(context).pop();
               ref.read(themeProvider.notifier).toggleTheme();
             },
           ),
@@ -156,9 +163,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-
-
-  Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
+  // ... (keep the rest of the HomeScreen code unchanged)
+   Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
     final imagePickerService = ref.read(imagePickerServiceProvider);
 
     return Padding(
@@ -211,58 +217,6 @@ class HomeScreen extends ConsumerWidget {
         onPressed: onPressed,
         tooltip: tooltip,
       ),
-    );
-  }
-
-  void _showWaterIntakeDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 24,
-            right: 24,
-            top: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Log Water Intake',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Amount (e.g., 250 ml)',
-                  border: OutlineInputBorder(),
-                  suffixText: 'ml',
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: Add logic to save the water intake value
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Log Water'),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      },
     );
   }
 }
