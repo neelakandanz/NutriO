@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>To take a picture of your meal for nutritional analysis.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To select a photo of your meal from the gallery for nutritional analysis.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app does not require access to the microphone, but this key is needed for camera access.</string>	
 </dict>
 </plist>

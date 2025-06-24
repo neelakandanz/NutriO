@@ -1,6 +1,8 @@
 // lib/src/view/homescreen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart'; // Import ImageSource
+import 'package:nutrio/src/provider/image_picker_provider.dart'; // Import the new provider
 import 'package:nutrio/src/provider/theme_provider.dart';
 import '../core/constants/app_constant.dart';
 
@@ -12,10 +14,32 @@ class HomeScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
+    // Listen to the image picker provider for changes
+    ref.listen<XFile?>(imagePickerProvider, (previous, next) {
+      if (next != null) {
+        // An image has been picked.
+        // In a real app, you'd navigate to a new screen to show the image and analysis.
+        // For now, let's show a simple dialog.
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Image Selected'),
+            content: Text('Path: ${next.path}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: const Text(AppConstants.appName),
+        title: const Text(AppConstants.appName), //
         actions: [
           IconButton(
             icon: Icon(
@@ -24,7 +48,7 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(themeProvider.notifier).toggleTheme();
             },
-            tooltip: AppConstants.toggleTheme,
+            tooltip: AppConstants.toggleTheme, //
           ),
         ],
       ),
@@ -44,7 +68,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      AppConstants.whatsOnYourPlate,
+                      AppConstants.whatsOnYourPlate, //
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         color: theme.colorScheme.onBackground,
@@ -52,7 +76,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppConstants.addAPhoto,
+                      AppConstants.addAPhoto, //
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.7),
@@ -62,14 +86,17 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            _buildActionButtons(context),
+            _buildActionButtons(context, ref), // Pass ref to the method
           ],
         ),
       ),
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
+    // Get the image picker service
+    final imagePickerService = ref.read(imagePickerServiceProvider);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 40.0),
       child: Row(
@@ -78,19 +105,15 @@ class HomeScreen extends ConsumerWidget {
           _buildActionButton(
             context: context,
             icon: Icons.camera_alt_outlined,
-            tooltip: AppConstants.takeAPicture,
-            onPressed: () {
-              print(AppConstants.cameraButtonPressed);
-            },
+            tooltip: AppConstants.takeAPicture, //
+            onPressed: () => imagePickerService.pickImage(ImageSource.camera),
           ),
           const SizedBox(width: 24),
           _buildActionButton(
             context: context,
             icon: Icons.photo_library_outlined,
-            tooltip: AppConstants.addFromGallery,
-            onPressed: () {
-              print(AppConstants.galleryButtonPressed);
-            },
+            tooltip: AppConstants.addFromGallery, //
+            onPressed: () => imagePickerService.pickImage(ImageSource.gallery),
           ),
         ],
       ),
