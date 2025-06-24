@@ -1,13 +1,8 @@
-//==============================================================================
-// 3. UI - ONBOARDING SCREEN
-// This is the main screen containing the PageView.
-//==============================================================================
-
+// lib/src/view/onboard/onboarding_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// 🛑 ACTION: Make sure this import path matches your project structure.
+import '../../core/constants/app_constant.dart';
 import '../../provider/onboarding_provider.dart';
 import '../homescreen.dart';
 
@@ -16,7 +11,6 @@ class OnboardingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // A PageController to manage the swipeable pages.
     final pageController = PageController();
     final onboardingState = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
@@ -32,7 +26,6 @@ class OnboardingScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // The main content area with the swipeable pages
             Expanded(
               child: PageView(
                 controller: pageController,
@@ -40,31 +33,26 @@ class OnboardingScreen extends ConsumerWidget {
                 children: pages,
               ),
             ),
-            // Navigation controls (dots and button)
-            _buildNavigation(
-                context, ref, pageController, pages.length),
+            _buildNavigation(context, ref, pageController, pages.length),
           ],
         ),
       ),
     );
   }
 
-  /// Builds the bottom navigation bar with progress dots and a button.
   Widget _buildNavigation(BuildContext context, WidgetRef ref,
       PageController controller, int pageCount) {
     final state = ref.watch(onboardingProvider);
-    final notifier = ref.read(onboardingProvider.notifier);
 
-    // Determines if the "Next" button should be enabled.
     bool isNextEnabled() {
       switch (state.currentPage) {
-        case 0: // Age
-          return true; // Always enabled as there's a default.
-        case 1: // Gender
-          return state.gender != null;
-        case 2: // Height
+        case 0:
           return true;
-        case 3: // Weight
+        case 1:
+          return state.gender != null;
+        case 2:
+          return true;
+        case 3:
           return true;
         default:
           return false;
@@ -76,14 +64,12 @@ class OnboardingScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Progress Dots
           Row(
             children: List.generate(
               pageCount,
               (index) => _buildDot(index, state.currentPage),
             ),
           ),
-          // Next/Finish Button
           ElevatedButton(
             onPressed: !isNextEnabled()
                 ? null
@@ -94,21 +80,19 @@ class OnboardingScreen extends ConsumerWidget {
                         curve: Curves.easeInOut,
                       );
                     } else {
-                      // ✅ --- NAVIGATION LOGIC ---
-                      // This is the final step.
-                      // Navigate to the app's home screen and remove previous routes.
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           builder: (_) => const HomeScreen(),
                         ),
                       );
-                      // You can still print the data for debugging if you wish.
-                      print("Onboarding Complete. Navigating to HomeScreen.");
-                      print("Final Data: ");
-                      print("Age: ${state.age}");
-                      print("Gender: ${state.gender}");
-                      print("Height: ${state.height.toStringAsFixed(1)} ${state.heightUnit}");
-                      print("Weight: ${state.weight.toStringAsFixed(1)} ${state.weightUnit}");
+                      print(AppConstants.onboardingComplete);
+                      print(AppConstants.finalData);
+                      print("${AppConstants.ageLabel}${state.age}");
+                      print("${AppConstants.genderLabel}${state.gender}");
+                      print(
+                          "${AppConstants.heightLabel}${state.height.toStringAsFixed(1)} ${state.heightUnit}");
+                      print(
+                          "${AppConstants.weightLabel}${state.weight.toStringAsFixed(1)} ${state.weightUnit}");
                     }
                   },
             style: ElevatedButton.styleFrom(
@@ -121,9 +105,9 @@ class OnboardingScreen extends ConsumerWidget {
               backgroundColor: MaterialStateProperty.resolveWith<Color>(
                 (Set<MaterialState> states) {
                   if (states.contains(MaterialState.disabled)) {
-                    return Colors.grey.shade400; // Disabled color
+                    return Colors.grey.shade400;
                   }
-                  return Colors.black; // Enabled color
+                  return Colors.black;
                 },
               ),
             ),
@@ -134,7 +118,6 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  /// Builds a single progress dot.
   Widget _buildDot(int index, int currentIndex) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -149,18 +132,11 @@ class OnboardingScreen extends ConsumerWidget {
   }
 }
 
-//==============================================================================
-// 4. UI - INDIVIDUAL PAGE WIDGETS
-// Each page is a self-contained widget for clarity.
-//==============================================================================
-
-/// A template for each onboarding page.
 class _OnboardingPageTemplate extends StatelessWidget {
   final String title;
   final Widget child;
 
-  const _OnboardingPageTemplate(
-      {required this.title, required this.child});
+  const _OnboardingPageTemplate({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +163,6 @@ class _OnboardingPageTemplate extends StatelessWidget {
   }
 }
 
-/// Page 1: Age Selector
 class _AgeSliderPage extends ConsumerWidget {
   const _AgeSliderPage();
 
@@ -197,20 +172,19 @@ class _AgeSliderPage extends ConsumerWidget {
     final notifier = ref.read(onboardingProvider.notifier);
 
     return _OnboardingPageTemplate(
-      title: "What is your age?",
+      title: AppConstants.whatIsYourAge,
       child: _CustomNumberSlider(
         value: age.toDouble(),
         min: 13,
         max: 100,
         label: "$age",
-        unit: "years",
+        unit: AppConstants.years,
         onChanged: (value) => notifier.setAge(value.toInt()),
       ),
     );
   }
 }
 
-/// Page 2: Gender Selector
 class _GenderSelectorPage extends ConsumerWidget {
   const _GenderSelectorPage();
 
@@ -221,25 +195,25 @@ class _GenderSelectorPage extends ConsumerWidget {
     final notifier = ref.read(onboardingProvider.notifier);
 
     return _OnboardingPageTemplate(
-      title: "Tell us about you", // UX Tweak: More conversational title
+      title: AppConstants.tellUsAboutYou,
       child: Column(
         children: [
           _GenderOption(
-            label: 'Male',
-            isSelected: selectedGender == 'Male',
-            onTap: () => notifier.setGender('Male'),
+            label: AppConstants.male,
+            isSelected: selectedGender == AppConstants.male,
+            onTap: () => notifier.setGender(AppConstants.male),
           ),
           const SizedBox(height: 16),
           _GenderOption(
-            label: 'Female',
-            isSelected: selectedGender == 'Female',
-            onTap: () => notifier.setGender('Female'),
+            label: AppConstants.female,
+            isSelected: selectedGender == AppConstants.female,
+            onTap: () => notifier.setGender(AppConstants.female),
           ),
           const SizedBox(height: 16),
           _GenderOption(
-            label: 'Other',
-            isSelected: selectedGender == 'Other',
-            onTap: () => notifier.setGender('Other'),
+            label: AppConstants.other,
+            isSelected: selectedGender == AppConstants.other,
+            onTap: () => notifier.setGender(AppConstants.other),
           ),
         ],
       ),
@@ -247,7 +221,6 @@ class _GenderSelectorPage extends ConsumerWidget {
   }
 }
 
-/// Page 3: Height Selector
 class _HeightSliderPage extends ConsumerWidget {
   const _HeightSliderPage();
 
@@ -257,24 +230,22 @@ class _HeightSliderPage extends ConsumerWidget {
     final unit = ref.watch(onboardingProvider.select((s) => s.heightUnit));
     final notifier = ref.read(onboardingProvider.notifier);
 
-    // Define slider properties based on the selected unit.
     double min, max;
     String label;
-    if (unit == 'cm') {
+    if (unit == AppConstants.cm) {
       min = 120;
       max = 220;
       label = height.toStringAsFixed(0);
-    } else { // 'ft'
+    } else {
       min = 4;
       max = 7.5;
-      // Convert feet to feet and inches for display
       final feet = height.truncate();
       final inches = ((height - feet) * 12).round();
       label = "$feet' $inches\"";
     }
 
     return _OnboardingPageTemplate(
-      title: "What is your height?",
+      title: AppConstants.whatIsYourHeight,
       child: _CustomNumberSlider(
         value: height,
         min: min,
@@ -284,7 +255,7 @@ class _HeightSliderPage extends ConsumerWidget {
         onChanged: (value) => notifier.setHeight(value),
         unitToggle: (
           onPressed: (newUnit) => notifier.setHeightUnit(newUnit),
-          options: ['cm', 'ft'],
+          options: [AppConstants.cm, AppConstants.ft],
           selected: unit,
         ),
       ),
@@ -292,7 +263,6 @@ class _HeightSliderPage extends ConsumerWidget {
   }
 }
 
-/// Page 4: Weight Selector
 class _WeightSliderPage extends ConsumerWidget {
   const _WeightSliderPage();
 
@@ -303,16 +273,16 @@ class _WeightSliderPage extends ConsumerWidget {
     final notifier = ref.read(onboardingProvider.notifier);
 
     double min, max;
-    if (unit == 'kg') {
+    if (unit == AppConstants.kg) {
       min = 30;
       max = 200;
-    } else { // 'lb'
+    } else {
       min = 66;
       max = 440;
     }
 
     return _OnboardingPageTemplate(
-      title: "What is your weight?",
+      title: AppConstants.whatIsYourWeight,
       child: _CustomNumberSlider(
         value: weight,
         min: min,
@@ -322,7 +292,7 @@ class _WeightSliderPage extends ConsumerWidget {
         onChanged: (value) => notifier.setWeight(value),
         unitToggle: (
           onPressed: (newUnit) => notifier.setWeightUnit(newUnit),
-          options: ['kg', 'lb'],
+          options: [AppConstants.kg, AppConstants.lb],
           selected: unit,
         ),
       ),
@@ -330,12 +300,6 @@ class _WeightSliderPage extends ConsumerWidget {
   }
 }
 
-//==============================================================================
-// 5. UI - REUSABLE CUSTOM WIDGETS
-// These widgets are used across the onboarding pages.
-//==============================================================================
-
-/// A reusable widget for gender selection options.
 class _GenderOption extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -377,8 +341,6 @@ class _GenderOption extends StatelessWidget {
   }
 }
 
-
-/// A beautiful, reusable number slider component.
 class _CustomNumberSlider extends StatelessWidget {
   final double value;
   final double min;
@@ -406,7 +368,6 @@ class _CustomNumberSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Display for the selected value
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -432,7 +393,6 @@ class _CustomNumberSlider extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 30),
-        // The slider itself
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: Colors.black,
@@ -451,7 +411,6 @@ class _CustomNumberSlider extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        // Optional unit toggle buttons
         if (unitToggle != null)
           _UnitToggle(
             options: unitToggle!.options,
@@ -463,7 +422,6 @@ class _CustomNumberSlider extends StatelessWidget {
   }
 }
 
-/// A segmented control for switching between units (e.g., cm/ft).
 class _UnitToggle extends StatelessWidget {
   final List<String> options;
   final String selectedOption;

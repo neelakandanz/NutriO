@@ -1,33 +1,30 @@
+// lib/src/view/homescreen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrio/src/provider/theme_provider.dart';
+import '../core/constants/app_constant.dart';
 
-// Convert HomeScreen to a ConsumerWidget.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) { // Add WidgetRef
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    // Determine the current brightness to select the correct icon.
     final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: const Text('NutriO'),
-        // Add the actions property to the AppBar.
+        title: const Text(AppConstants.appName),
         actions: [
           IconButton(
-            // Show a sun icon for dark mode, and a moon icon for light mode.
             icon: Icon(
               isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
             ),
             onPressed: () {
-              // Call the toggleTheme method on our provider.
               ref.read(themeProvider.notifier).toggleTheme();
             },
-            tooltip: 'Toggle Theme',
+            tooltip: AppConstants.toggleTheme,
           ),
         ],
       ),
@@ -47,7 +44,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'What\'s on your plate?',
+                      AppConstants.whatsOnYourPlate,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         color: theme.colorScheme.onBackground,
@@ -55,7 +52,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Add a photo to get a nutritional breakdown of your meal.',
+                      AppConstants.addAPhoto,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.7),
@@ -72,9 +69,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  /// Builds the bottom action buttons for user actions.
   Widget _buildActionButtons(BuildContext context) {
-      return Padding(
+    return Padding(
       padding: const EdgeInsets.only(bottom: 40.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -82,18 +78,18 @@ class HomeScreen extends ConsumerWidget {
           _buildActionButton(
             context: context,
             icon: Icons.camera_alt_outlined,
-            tooltip: 'Take a picture',
+            tooltip: AppConstants.takeAPicture,
             onPressed: () {
-              print('Camera button pressed');
+              print(AppConstants.cameraButtonPressed);
             },
           ),
           const SizedBox(width: 24),
           _buildActionButton(
             context: context,
             icon: Icons.photo_library_outlined,
-            tooltip: 'Add from gallery',
+            tooltip: AppConstants.addFromGallery,
             onPressed: () {
-              print('Gallery button pressed');
+              print(AppConstants.galleryButtonPressed);
             },
           ),
         ],
@@ -101,7 +97,6 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  /// A reusable widget for creating the circular action buttons.
   Widget _buildActionButton({
     required BuildContext context,
     required IconData icon,

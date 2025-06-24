@@ -1,9 +1,8 @@
+// lib/src/provider/onboarding_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../core/constants/app_constant.dart';
 import '../model/onboarding_model.dart';
 
-/// The StateNotifier manages the OnboardingState.
-/// It contains methods to update the state in a controlled way.
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
   OnboardingNotifier() : super(const OnboardingState());
 
@@ -20,10 +19,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   }
 
   void setHeightUnit(String unit) {
-    // When changing units, convert the existing value.
-    if (unit == 'ft' && state.heightUnit == 'cm') {
+    if (unit == AppConstants.ft && state.heightUnit == AppConstants.cm) {
       state = state.copyWith(height: state.height * 0.0328084, heightUnit: unit);
-    } else if (unit == 'cm' && state.heightUnit == 'ft') {
+    } else if (unit == AppConstants.cm && state.heightUnit == AppConstants.ft) {
       state = state.copyWith(height: state.height * 30.48, heightUnit: unit);
     }
   }
@@ -33,10 +31,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   }
 
   void setWeightUnit(String unit) {
-    // When changing units, convert the existing value.
-    if (unit == 'lb' && state.weightUnit == 'kg') {
+    if (unit == AppConstants.lb && state.weightUnit == AppConstants.kg) {
       state = state.copyWith(weight: state.weight * 2.20462, weightUnit: unit);
-    } else if (unit == 'kg' && state.weightUnit == 'lb') {
+    } else if (unit == AppConstants.kg && state.weightUnit == AppConstants.lb) {
       state = state.copyWith(weight: state.weight * 0.453592, weightUnit: unit);
     }
   }
@@ -46,8 +43,6 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   }
 }
 
-/// The provider that exposes the OnboardingNotifier to the widget tree.
-/// Widgets will use this to interact with the state.
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>(
         (ref) => OnboardingNotifier());
