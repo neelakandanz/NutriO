@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nutrio/src/features/onboarding/presentation/onboarding_screen.dart'; // We will create this next
+import 'package:nutrio/src/view/onboarding_screen.dart'; // We will create this next
 
 void main() {
   // Any app-level initialization can go here.
