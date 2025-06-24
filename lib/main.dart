@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:nutrio/src/view/onboard/onboarding_screen.dart'; // We will create this next
+import 'package:nutrio/src/provider/theme_provider.dart';
+import 'package:nutrio/src/theme/app_theme.dart';
+import 'package:nutrio/src/view/onboard/onboarding_screen.dart';
 
 void main() {
-  // Any app-level initialization can go here.
-  // For example, setting up Firebase, error monitoring, etc.
   runApp(
     const ProviderScope(
       child: NutriOApp(),
@@ -13,21 +12,22 @@ void main() {
   );
 }
 
-class NutriOApp extends StatelessWidget {
+// Convert NutriOApp to a ConsumerWidget to access providers.
+class NutriOApp extends ConsumerWidget {
   const NutriOApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the themeProvider to get the current theme mode.
+    final themeMode = ref.watch(themeProvider);
+
     return MaterialApp(
       title: 'NutriO',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-        textTheme: GoogleFonts.interTextTheme(
-          Theme.of(context).textTheme,
-        ),
-      ),
-      // For now, we'll point to an onboarding screen. Later, this will be handled by our router.
+      // Set the light and dark themes.
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      // Use the themeMode from the provider to control which theme is active.
+      themeMode: themeMode,
       home: const OnboardingScreen(),
       debugShowCheckedModeBanner: false,
     );

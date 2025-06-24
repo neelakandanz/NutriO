@@ -1,82 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nutrio/src/provider/theme_provider.dart';
 
-// Best practice: Using a dedicated theme file is better, but for a single screen,
-// defining colors here is acceptable. This establishes a professional and clean color palette.
-class AppColors {
-  static const Color background = Colors.white;
-  static const Color primaryText = Color(0xFF1D1D1F);
-  static const Color secondaryText = Color(0xFF8A8A8E);
-  static const Color accent = Color(0xFF007AFF); // A vibrant, trustworthy blue
-  static const Color borderColor = Color(0xFFE5E5E5);
-}
-
-class HomeScreen extends StatelessWidget {
+// Convert HomeScreen to a ConsumerWidget.
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Using Scaffold as the base for our screen layout.
+  Widget build(BuildContext context, WidgetRef ref) { // Add WidgetRef
+    final theme = Theme.of(context);
+    // Determine the current brightness to select the correct icon.
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        // The title is kept minimal. The app's name is sufficient.
-        title: const Text(
-          'NutriO',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.primaryText,
+        title: const Text('NutriO'),
+        // Add the actions property to the AppBar.
+        actions: [
+          IconButton(
+            // Show a sun icon for dark mode, and a moon icon for light mode.
+            icon: Icon(
+              isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            ),
+            onPressed: () {
+              // Call the toggleTheme method on our provider.
+              ref.read(themeProvider.notifier).toggleTheme();
+            },
+            tooltip: 'Toggle Theme',
           ),
-        ),
-        centerTitle: true,
-        backgroundColor: AppColors.background,
-        // Elevation is set to 0 to create a seamless, modern look between the app bar and body.
-        elevation: 0,
+        ],
       ),
       body: SafeArea(
-        // SafeArea ensures our UI avoids system notches and gestures.
         child: Column(
           children: [
-            // The Expanded widget pushes the action buttons to the bottom,
-            // leaving the center for welcome messages.
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    // A welcoming icon to represent nutrition analysis.
+                  children: [
                     Icon(
                       Icons.food_bank_outlined,
                       size: 60,
-                      color: AppColors.accent,
+                      color: theme.colorScheme.primary,
                     ),
-                    SizedBox(height: 24),
-                    // The main headline. Clear and action-oriented.
+                    const SizedBox(height: 24),
                     Text(
                       'What\'s on your plate?',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryText,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        color: theme.colorScheme.onBackground,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    // The sub-headline guides the user on what to do.
+                    const SizedBox(height: 8),
                     Text(
                       'Add a photo to get a nutritional breakdown of your meal.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.secondaryText,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            // The action buttons are the primary interaction point.
-            _buildActionButtons(),
+            _buildActionButtons(context),
           ],
         ),
       ),
@@ -84,29 +73,26 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Builds the bottom action buttons for user actions.
-  /// This layout is cleaner and more focused without the text field.
-  Widget _buildActionButtons() {
-    return Padding(
-      // Provides ample space from the bottom edge.
+  Widget _buildActionButtons(BuildContext context) {
+      return Padding(
       padding: const EdgeInsets.only(bottom: 40.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center, // Center the buttons horizontally
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Extracted button widget for consistency and clean code.
           _buildActionButton(
+            context: context,
             icon: Icons.camera_alt_outlined,
             tooltip: 'Take a picture',
             onPressed: () {
-              // TODO: Implement camera functionality.
               print('Camera button pressed');
             },
           ),
-          const SizedBox(width: 24), // Provides spacing between the buttons.
+          const SizedBox(width: 24),
           _buildActionButton(
+            context: context,
             icon: Icons.photo_library_outlined,
             tooltip: 'Add from gallery',
             onPressed: () {
-              // TODO: Implement image picker functionality.
               print('Gallery button pressed');
             },
           ),
@@ -116,30 +102,30 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// A reusable widget for creating the circular action buttons.
-  /// This improves maintainability and ensures a consistent UI.
   Widget _buildActionButton({
+    required BuildContext context,
     required IconData icon,
     required String tooltip,
     required VoidCallback onPressed,
   }) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: theme.colorScheme.background,
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.borderColor, width: 1.5),
+        border: Border.all(color: theme.dividerColor, width: 1.5),
         boxShadow: [
-          // A subtle shadow adds depth and lifts the button off the background.
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: theme.colorScheme.onBackground.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: IconButton(
-        iconSize: 32, // A larger icon for a better visual and touch target.
-        padding: const EdgeInsets.all(20), // Generous padding for a larger button area.
-        icon: Icon(icon, color: AppColors.primaryText),
+        iconSize: 32,
+        padding: const EdgeInsets.all(20),
+        icon: Icon(icon, color: theme.colorScheme.onBackground),
         onPressed: onPressed,
         tooltip: tooltip,
       ),
