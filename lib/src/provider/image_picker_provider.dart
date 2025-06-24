@@ -4,10 +4,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 // 1. Provider for the selected image file
-final imagePickerProvider = StateProvider<XFile?>((ref) => null);
+final imagePickerProvider = StateProvider.autoDispose<XFile?>((ref) => null);
 
 // 2. Provider for the ImagePicker service
-final imagePickerServiceProvider = Provider((ref) => ImagePickerService(ref));
+final imagePickerServiceProvider = Provider.autoDispose((ref) => ImagePickerService(ref));
 
 // 3. Service class to handle image picking and permissions
 class ImagePickerService {

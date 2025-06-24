@@ -44,5 +44,5 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 }
 
 final onboardingProvider =
-    StateNotifierProvider<OnboardingNotifier, OnboardingState>(
+    StateNotifierProvider.autoDispose<OnboardingNotifier, OnboardingState>(
         (ref) => OnboardingNotifier());
