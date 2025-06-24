@@ -6,7 +6,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../provider/OnboardingNotifier.dart';
 
 class OnboardingScreen extends ConsumerWidget {
@@ -114,7 +113,7 @@ class OnboardingScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               elevation: 0,
             ).copyWith(
-               backgroundColor: MaterialStateProperty.resolveWith<Color>(
+              backgroundColor: MaterialStateProperty.resolveWith<Color>(
                 (Set<MaterialState> states) {
                   if (states.contains(MaterialState.disabled)) {
                     return Colors.grey.shade400; // Disabled color
@@ -161,13 +160,17 @@ class _OnboardingPageTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
+        // ✅ BEST PRACTICE: Vertically center the content within the PageView.
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        // ✅ BEST PRACTICE: Horizontally center the title and child widgets.
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
+            // ✅ UX: Ensure title text is centered, especially if it wraps.
+            textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -176,12 +179,14 @@ class _OnboardingPageTemplate extends StatelessWidget {
           ),
           const SizedBox(height: 40),
           child,
-          const Spacer(),
+          // ❌ REMOVED: The Spacer was pushing all content to the top.
+          // const Spacer(),
         ],
       ),
     );
   }
 }
+
 
 /// Page 1: Age Selector
 class _AgeSliderPage extends ConsumerWidget {
@@ -217,7 +222,7 @@ class _GenderSelectorPage extends ConsumerWidget {
     final notifier = ref.read(onboardingProvider.notifier);
 
     return _OnboardingPageTemplate(
-      title: "What is your gender?",
+      title: "Tell us about you", // UX Tweak: More conversational title
       child: Column(
         children: [
           _GenderOption(
@@ -514,4 +519,3 @@ class _UnitToggle extends StatelessWidget {
     );
   }
 }
-
