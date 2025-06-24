@@ -6,7 +6,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// 🛑 ACTION: Make sure this import path matches your project structure.
 import '../../provider/OnboardingNotifier.dart';
+import '../homescreen.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
@@ -50,6 +53,7 @@ class OnboardingScreen extends ConsumerWidget {
   Widget _buildNavigation(BuildContext context, WidgetRef ref,
       PageController controller, int pageCount) {
     final state = ref.watch(onboardingProvider);
+    final notifier = ref.read(onboardingProvider.notifier);
 
     // Determines if the "Next" button should be enabled.
     bool isNextEnabled() {
@@ -90,15 +94,16 @@ class OnboardingScreen extends ConsumerWidget {
                         curve: Curves.easeInOut,
                       );
                     } else {
+                      // ✅ --- NAVIGATION LOGIC ---
                       // This is the final step.
-                      // Here you would navigate to the app's home screen
-                      // or save the data to a backend.
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Onboarding Complete!'),
-                          backgroundColor: Colors.green,
+                      // Navigate to the app's home screen and remove previous routes.
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => const HomeScreen(),
                         ),
                       );
+                      // You can still print the data for debugging if you wish.
+                      print("Onboarding Complete. Navigating to HomeScreen.");
                       print("Final Data: ");
                       print("Age: ${state.age}");
                       print("Gender: ${state.gender}");
@@ -162,14 +167,11 @@ class _OnboardingPageTemplate extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
-        // ✅ BEST PRACTICE: Vertically center the content within the PageView.
         mainAxisAlignment: MainAxisAlignment.center,
-        // ✅ BEST PRACTICE: Horizontally center the title and child widgets.
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
-            // ✅ UX: Ensure title text is centered, especially if it wraps.
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 28,
@@ -179,14 +181,11 @@ class _OnboardingPageTemplate extends StatelessWidget {
           ),
           const SizedBox(height: 40),
           child,
-          // ❌ REMOVED: The Spacer was pushing all content to the top.
-          // const Spacer(),
         ],
       ),
     );
   }
 }
-
 
 /// Page 1: Age Selector
 class _AgeSliderPage extends ConsumerWidget {
