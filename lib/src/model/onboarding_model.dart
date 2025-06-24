@@ -1,4 +1,6 @@
+// lib/src/model/onboarding_model.dart
 import 'package:flutter/material.dart';
+import '../core/constants/app_constant.dart';
 
 @immutable
 class OnboardingState {
@@ -14,13 +16,12 @@ class OnboardingState {
     this.age = 30,
     this.gender,
     this.height = 170,
-    this.heightUnit = 'cm',
+    this.heightUnit = AppConstants.cm,
     this.weight = 70,
-    this.weightUnit = 'kg',
+    this.weightUnit = AppConstants.kg,
     this.currentPage = 0,
   });
 
-  // Helper method to create a copy of the state with updated values.
   OnboardingState copyWith({
     int? age,
     String? gender,
