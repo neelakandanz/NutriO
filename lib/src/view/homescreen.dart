@@ -3,17 +3,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nutrio/src/core/constants/app_constant.dart';
 import 'package:nutrio/src/provider/image_picker_provider.dart';
+import 'package:nutrio/src/provider/onboarding_provider.dart'; // Import onboarding provider
 import 'package:nutrio/src/provider/theme_provider.dart';
-import 'package:nutrio/src/view/water_intake/water_intake_screen.dart'; // Import the new screen
-import '../core/constants/app_constant.dart';
+import 'package:nutrio/src/view/water_intake/water_intake_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ... (keep the existing build method logic)
     final theme = Theme.of(context);
 
     ref.listen<XFile?>(imagePickerProvider, (previous, next) {
@@ -38,10 +38,7 @@ class HomeScreen extends ConsumerWidget {
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: const Text(AppConstants.appName),
-        // No more 'actions' here! The title will remain centered.
-        // Flutter automatically adds a menu button to open the drawer.
       ),
-      // Add the drawer to the Scaffold
       drawer: _buildAppDrawer(context, ref),
       body: SafeArea(
         child: Column(
@@ -84,7 +81,6 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  // This is the only method we are modifying.
   Widget _buildAppDrawer(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
@@ -95,14 +91,14 @@ class HomeScreen extends ConsumerWidget {
         children: [
           UserAccountsDrawerHeader(
             accountName: Text(
-              "Your Name", // Placeholder for user's name
+              "Your Name",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurface,
               ),
             ),
             accountEmail: Text(
-              "your.email@example.com", // Placeholder for user's email
+              "your.email@example.com",
               style: TextStyle(
                 color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),
@@ -110,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
             currentAccountPicture: CircleAvatar(
               backgroundColor: theme.colorScheme.primary,
               child: const Text(
-                "Y", // Placeholder for user's initial
+                "Y",
                 style: TextStyle(fontSize: 24.0, color: Colors.white),
               ),
             ),
@@ -123,10 +119,22 @@ class HomeScreen extends ConsumerWidget {
             title: const Text('Log Water Intake'),
             onTap: () {
               Navigator.of(context).pop(); // Close the drawer first
-              // ** MODIFICATION HERE **
+
+              // ** MODIFICATION HERE: Get weight and navigate **
+              final onboardingState = ref.read(onboardingProvider);
+              double weightInKg = onboardingState.weight;
+
+              // Convert to kg if the unit is lbs
+              if (onboardingState.weightUnit == AppConstants.lb) {
+                weightInKg = weightInKg * 0.453592;
+              }
+
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const WaterIntakeScreen(),
+                  // Pass the weight to the WaterIntakeScreen
+                  builder: (context) => WaterIntakeScreen(
+                    userWeightKg: weightInKg,
+                  ),
                 ),
               );
             },
@@ -147,7 +155,6 @@ class HomeScreen extends ConsumerWidget {
             title: const Text('Settings'),
             onTap: () {
               Navigator.of(context).pop();
-              // TODO: Navigate to a Settings screen
             },
           ),
           ListTile(
@@ -155,7 +162,6 @@ class HomeScreen extends ConsumerWidget {
             title: const Text('Logout'),
             onTap: () {
               Navigator.of(context).pop();
-              // TODO: Implement logout functionality
             },
           )
         ],
@@ -163,8 +169,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  // ... (keep the rest of the HomeScreen code unchanged)
-   Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
     final imagePickerService = ref.read(imagePickerServiceProvider);
 
     return Padding(

@@ -7,7 +7,13 @@ import 'package:nutrio/src/provider/water_intake_provider.dart';
 import 'package:nutrio/src/view/water_intake/widgets/water_glass_painter.dart';
 
 class WaterIntakeScreen extends ConsumerStatefulWidget {
-  const WaterIntakeScreen({super.key});
+  // 1. Add a final variable to accept the user's weight
+  final double userWeightKg;
+
+  const WaterIntakeScreen({
+    super.key,
+    required this.userWeightKg,
+  });
 
   @override
   ConsumerState<WaterIntakeScreen> createState() => _WaterIntakeScreenState();
@@ -32,7 +38,8 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
       duration: const Duration(milliseconds: 1200),
     );
 
-    final waterState = ref.read(waterIntakeProvider);
+    // 2. Use widget.userWeightKg to read the provider's initial state
+    final waterState = ref.read(waterIntakeProvider(widget.userWeightKg));
     _fillAnimation = Tween<double>(
       begin: 0.0,
       end: waterState.progressPercentage,
@@ -44,7 +51,7 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
     );
     _fillAnimationController.forward();
   }
-  
+
   @override
   void dispose() {
     _waveAnimationController.dispose();
@@ -55,10 +62,12 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final waterState = ref.watch(waterIntakeProvider);
+    // 3. Use widget.userWeightKg to watch the correct provider instance
+    final waterState = ref.watch(waterIntakeProvider(widget.userWeightKg));
 
-    // Listen to state changes to trigger the fill animation
-    ref.listen<WaterIntakeState>(waterIntakeProvider, (previous, next) {
+    // 4. Use widget.userWeightKg to listen to the correct provider instance
+    ref.listen<WaterIntakeState>(waterIntakeProvider(widget.userWeightKg),
+        (previous, next) {
       if (previous?.progressPercentage != next.progressPercentage) {
         _fillAnimation = Tween<double>(
           begin: previous?.progressPercentage ?? 0.0,
@@ -82,7 +91,8 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: theme.colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back_ios_new,
+              color: theme.colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -119,12 +129,17 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
                 Text('Daily Goal', style: theme.textTheme.titleMedium),
                 Text.rich(
                   TextSpan(
-                    text: '${waterState.currentIntakeLiters.toStringAsFixed(1)}L',
-                    style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary),
+                    text:
+                        '${waterState.currentIntakeLiters.toStringAsFixed(1)}L',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(color: theme.colorScheme.primary),
                     children: [
                       TextSpan(
-                        text: ' / ${waterState.dailyGoalLiters.toStringAsFixed(1)}L',
-                        style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                        text:
+                            ' / ${waterState.dailyGoalLiters.toStringAsFixed(1)}L',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.6)),
                       )
                     ],
                   ),
@@ -175,7 +190,10 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
                         '${waterState.currentIntakeLiters.toStringAsFixed(1)}L',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7),
                         ),
                       )
                     ],
@@ -206,15 +224,18 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
             physics: const NeverScrollableScrollPhysics(),
             itemCount: waterState.logs.length,
             itemBuilder: (context, index) {
-              final log = waterState.logs[waterState.logs.length - 1 - index]; // Show latest first
+              final log =
+                  waterState.logs[waterState.logs.length - 1 - index];
               return Card(
                 elevation: 1,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                    child: Icon(Icons.water_drop_outlined, color: theme.colorScheme.primary),
+                    child: Icon(Icons.water_drop_outlined,
+                        color: theme.colorScheme.primary),
                   ),
                   title: Text('${log.amount.toStringAsFixed(0)}ml'),
                   trailing: Text(DateFormat.jm().format(log.timestamp)),
@@ -254,7 +275,8 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
               TextFormField(
                 controller: controller,
                 autofocus: true,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   labelText: 'Amount',
                   border: OutlineInputBorder(),
@@ -268,7 +290,11 @@ class _WaterIntakeScreenState extends ConsumerState<WaterIntakeScreen>
                   onPressed: () {
                     final amount = double.tryParse(controller.text);
                     if (amount != null && amount > 0) {
-                      ref.read(waterIntakeProvider.notifier).addWaterLog(amount);
+                      // 5. Use widget.userWeightKg to read the correct notifier instance
+                      ref
+                          .read(waterIntakeProvider(widget.userWeightKg)
+                              .notifier)
+                          .addWaterLog(amount);
                     }
                     Navigator.of(context).pop();
                   },

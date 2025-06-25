@@ -12,7 +12,7 @@ class WaterIntakeState {
   final List<WaterLog> logs;
 
   const WaterIntakeState({
-    this.dailyGoalLiters = 3.0,
+    this.dailyGoalLiters = 0.0, // Default to 0, will be calculated
     this.logs = const [],
   });
 
@@ -23,7 +23,7 @@ class WaterIntakeState {
   }
 
   double get progressPercentage {
-    if (dailyGoalLiters == 0) return 0.0;
+    if (dailyGoalLiters <= 0) return 0.0;
     return (currentIntakeLiters / dailyGoalLiters).clamp(0.0, 1.0);
   }
 
@@ -40,7 +40,14 @@ class WaterIntakeState {
 
 // 2. The Notifier
 class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
-  WaterIntakeNotifier() : super(const WaterIntakeState());
+  // The notifier's constructor now calculates the initial state
+  WaterIntakeNotifier(double userWeightKg) : super(const WaterIntakeState()) {
+    // A common formula: 35 mL of water per kg of body weight
+    final double goalInMl = userWeightKg * 35;
+    // Convert to liters for the state
+    final double goalInLiters = goalInMl / 1000.0;
+    state = state.copyWith(dailyGoalLiters: goalInLiters);
+  }
 
   // Method to add a new water log entry
   void addWaterLog(double amountInMl) {
@@ -51,14 +58,12 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
     );
     state = state.copyWith(logs: [...state.logs, newLog]);
   }
-
-  // In the future, you could add methods like:
-  // void removeWaterLog(String id) { ... }
-  // void setDailyGoal(double liters) { ... }
 }
 
-// 3. The Provider
+// 3. The Provider (changed to a .family)
+// It now takes a double (user's weight in kg) and creates a unique provider instance.
 final waterIntakeProvider =
-    StateNotifierProvider<WaterIntakeNotifier, WaterIntakeState>((ref) {
-  return WaterIntakeNotifier();
+    StateNotifierProvider.family<WaterIntakeNotifier, WaterIntakeState, double>(
+        (ref, userWeightKg) {
+  return WaterIntakeNotifier(userWeightKg);
 });
